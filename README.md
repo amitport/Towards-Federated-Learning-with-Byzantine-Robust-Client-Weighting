@@ -1,17 +1,14 @@
 # Towards-Federated-Learning-With-Byzantine-Robust-Client-Weighting
-The source code for the paper ['Towards Federated Learning With Byzantine-RobustClient Weighting'](https://arxiv.org/abs/2004.04986).
+This repository is the official implementation of the paper 'Towards Federated Learning With Byzantine-RobustClient Weighting'.
 
-<hr />
-If you find this useful, please cite us: 
+## Requirements
 
+To install requirements:
 
+```setup
+pip install -r requirements.txt
 ```
-@misc{portnoy2020realistic,
-      title={Towards Federated Learning With Byzantine-Robust Client Weighting}, 
-      author={Amit Portnoy, Yoav Tirosh, and Danny Hendler},
-      year={2021},
-      eprint={2004.04986},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-```
+
+## Training
+
+## Generate Plots
