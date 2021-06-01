@@ -37,3 +37,5 @@ tensorboard --logdir <root_output_dir>/logdir
 ## Results
 
 Execute `plots.ipynb` using [Jupyter](https://jupyter.org/) to re-create the figures from the paper. 
+
+Run `plot_ds_hist.py` to recreate the sample distribution histogram figure.
