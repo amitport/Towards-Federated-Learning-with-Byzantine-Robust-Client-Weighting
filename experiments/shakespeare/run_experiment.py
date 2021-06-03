@@ -26,8 +26,8 @@ import tensorflow as tf
 import tensorflow_federated as tff
 from tensorflow_federated.python.learning import ClientWeighting
 
-from robust_client_weighting.aggregators import trimmed_mean, median, mean
-from robust_client_weighting.truncate import find_U
+from shared.aggregators import trimmed_mean, median, mean
+from shared.truncate import find_U
 from optimization.shared import training_specs
 from optimization.shared import optimizer_utils
 from experiments.shakespeare import federated_shakespeare

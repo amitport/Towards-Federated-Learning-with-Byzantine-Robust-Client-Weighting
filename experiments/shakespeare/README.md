@@ -26,7 +26,7 @@ Add `experiments/federated/google_tff_research` to `PYTHONPATH`.
 
 In order to reproduce the paper's results, execute `experiments/shakespeare/run_experiment.py` (the current working directory should be the repo's root).
 
-You can view the documentation for every command line parameter using `experiments/federated/run_experiment.py --help`.
+You can view the documentation for every command line parameter using `experiments/shakespeare/run_experiment.py --help`.
 
 We use the shared command line parameters and each combination of the preprocessing, aggregation, and attack parameters:
 
