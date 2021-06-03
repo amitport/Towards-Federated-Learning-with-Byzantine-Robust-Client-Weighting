@@ -24,11 +24,11 @@ Add `experiments/federated/google_tff_research` to `PYTHONPATH`.
 
 ## Training
 
-In order to reproduce the paper's results, we execute `experiments/shakespeare/run_experiment.py` (the current working directory should be the repo's root).
+In order to reproduce the paper's results, execute `experiments/shakespeare/run_experiment.py` (the current working directory should be the repo's root).
 
 You can view the documentation for every command line parameter using `experiments/federated/run_experiment.py --help`.
 
-We use the following parameters shared command line parameter and each combination of the preprocessing, aggregation, and attack parameters:
+We use the shared command line parameters and each combination of the preprocessing, aggregation, and attack parameters:
 
 ### Shared command line parameters 
 
@@ -52,13 +52,13 @@ The `--aggregation` parameter determines the type of the aggregation we use and 
 ### Attack command line parameters
 
 We have execute all previous experiment three time:
-1. Without attack -- no additional parameter needed.
-2. 10% precent attackers -- add the following: `--attack=delta_to_zero --num_byzantine=10_percent --byzantine_client_weight=1_000_000`.
-3. A single attacker -- add the following: `--attack=delta_to_zero --num_byzantine=single --byzantine_client_weight=10_000_000`. 
+1. Without attack: no additional parameter needed.
+2. 10% precent attackers: add the following `--attack=delta_to_zero --num_byzantine=10_percent --byzantine_client_weight=1_000_000`.
+3. A single attacker: add the following `--attack=delta_to_zero --num_byzantine=single --byzantine_client_weight=10_000_000`. 
 
-### Experiment name
+### Set each experiment name
 
-In order to use we ploting script without change make sure the name each experiment using the following pattern `--experiment_name=shakespeare_{aggregation}_{weight_preproc}{attack}`, where:
+In order to use our plotting script without change, make sure to name each experiment using the following pattern `--experiment_name=shakespeare_{aggregation}_{weight_preproc}{attack}`, where:
 * `weight_preproc` corresponds to `passthrough`, `ignore`, or `truncate`.
 * `aggregation` corresponds to `mean`, `tmean` (trimmed mean), or `median`.
 * `attack` corresponds to `​` (empty string, no attack), `_byz_d0` (10% attackers), or `_byz_d0_single` (a single attacker).
