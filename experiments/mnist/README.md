@@ -16,4 +16,4 @@ In order to reproduce the paper's results, execute `experiments/mnist/run_experi
 
 ## Results
 
-After the experiments are done execute `plots.ipynb` using [Jupyter](https://jupyter.org/) to re-create the Shakespeare experiment figures from the paper. 
+After the experiments are done, execute `plots.ipynb` using [Jupyter](https://jupyter.org/) to re-create the Shakespeare experiment figures from the paper. 

@@ -4,5 +4,9 @@ This repository is the official implementation of the paper 'Towards Federated L
 
 ## Folder structure
 
-`experiments/shakespeare` contains our experiments using the Shakespeare dataset while `experiments/mnist` contains our MNIST experiments. `shared` contains code shared by both experiments.
+`experiments/shakespeare` contains our experiments using the Shakespeare dataset.
+
+`experiments/mnist` contains our MNIST experiments.
+
+`shared` contains code shared by both experiments.
 
