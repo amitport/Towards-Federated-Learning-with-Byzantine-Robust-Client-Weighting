@@ -37,7 +37,7 @@ from tensorflow_federated.python.learning import model_utils
 from tensorflow_federated.python.learning.framework import dataset_reduce
 from tensorflow_federated.python.tensorflow_libs import tensor_utils
 
-from experiments.byzantine_robust_client_weighting.shakespeare.tff_patch import optimizer_utils
+from experiments.shakespeare.tff_patch import optimizer_utils
 
 
 class ClientWeighting(enum.Enum):

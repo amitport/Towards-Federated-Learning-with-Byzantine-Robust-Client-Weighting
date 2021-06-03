@@ -13,6 +13,7 @@ expr_out_path = Path.home() / 'expr_out'
 
 expr_out_path.mkdir(parents=True, exist_ok=True)
 
+
 def hist(parts, title, bins=100):
   k = len(parts)
   fig = plt.figure(figsize=(5, 3))

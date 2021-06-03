@@ -2,7 +2,6 @@ import tensorflow as tf
 import tensorflow_federated as tff
 from tensorflow_federated.python.aggregators import factory
 from tensorflow_federated.python.common_libs import py_typecheck
-from tensorflow_federated.python.core.api import computation_types
 from tensorflow_federated.python.core.api import computations
 from tensorflow_federated.python.core.impl.types import type_analysis
 from tensorflow_federated.python.core.templates import aggregation_process
@@ -31,8 +30,8 @@ class NumpyAggrFactory(factory.WeightedAggregationFactory):
 
     @computations.federated_computation(
       init_fn.type_signature.result,
-      computation_types.FederatedType(value_type, tff.CLIENTS),
-      computation_types.FederatedType(weight_type, tff.CLIENTS))
+      tff.FederatedType(value_type, tff.CLIENTS),
+      tff.FederatedType(weight_type, tff.CLIENTS))
     def next_fn(state, value, weight):
       weights = tff.federated_collect(weight)
 

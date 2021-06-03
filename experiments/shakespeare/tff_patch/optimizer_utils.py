@@ -25,7 +25,6 @@ from tensorflow_federated.python.aggregators import factory
 from tensorflow_federated.python.aggregators import mean
 from tensorflow_federated.python.common_libs import py_typecheck
 from tensorflow_federated.python.core.api import computation_base
-from tensorflow_federated.python.core.api import computation_types
 from tensorflow_federated.python.core.api import computations
 from tensorflow_federated.python.core.impl.types import type_conversions
 from tensorflow_federated.python.core.templates import iterative_process
@@ -366,7 +365,7 @@ def _build_one_round_computation(
     _apply_delta(optimizer=optimizer, model=model, delta=finite_weights_delta)
     return model_variables, optimizer_variables
 
-  dataset_type = computation_types.SequenceType(
+  dataset_type = tff.SequenceType(
       dummy_model_for_metadata.input_spec)
 
   dataset_with_byzflag_type = tff.to_type((dataset_type, tf.bool))
@@ -399,8 +398,8 @@ def _build_one_round_computation(
       model_broadcast_state=broadcast_state)
 
   @computations.federated_computation(
-      computation_types.FederatedType(server_state_type, tff.SERVER),
-      computation_types.FederatedType(dataset_with_byzflag_type, tff.CLIENTS))
+      tff.FederatedType(server_state_type, tff.SERVER),
+      tff.FederatedType(dataset_with_byzflag_type, tff.CLIENTS))
   def one_round_computation(server_state, federated_dataset_with_byzflag):
     """Orchestration logic for one round of optimization.
 
@@ -514,7 +513,7 @@ def _is_valid_model_update_aggregation_process(
 
 # ============================================================================
 
-NONE_SERVER_TYPE = computation_types.FederatedType((), tff.SERVER)
+NONE_SERVER_TYPE = tff.FederatedType((), tff.SERVER)
 
 
 @computations.federated_computation()
@@ -523,15 +522,15 @@ def _empty_server_initialization():
 
 
 def build_stateless_mean(
-    *, model_delta_type: Union[computation_types.StructType,
-                               computation_types.TensorType]
+    *, model_delta_type: Union[tff.StructType,
+                               tff.TensorType]
 ) -> measured_process.MeasuredProcess:
   """Builds a `MeasuredProcess` that wraps` tff.federated_mean`."""
 
   @computations.federated_computation(
       NONE_SERVER_TYPE,
-      computation_types.FederatedType(model_delta_type, tff.CLIENTS),
-      computation_types.FederatedType(tf.float32, tff.CLIENTS))
+      tff.FederatedType(model_delta_type, tff.CLIENTS),
+      tff.FederatedType(tf.float32, tff.CLIENTS))
   def stateless_mean(state, value, weight):
     empty_metrics = tff.federated_value((), tff.SERVER)
     return measured_process.MeasuredProcessOutput(
@@ -544,14 +543,14 @@ def build_stateless_mean(
 
 
 def build_stateless_broadcaster(
-    *, model_weights_type: Union[computation_types.StructType,
-                                 computation_types.TensorType]
+    *, model_weights_type: Union[tff.StructType,
+                                 tff.TensorType]
 ) -> measured_process.MeasuredProcess:
   """Builds a `MeasuredProcess` that wraps `tff.federated_broadcast`."""
 
   @computations.federated_computation(
       NONE_SERVER_TYPE,
-      computation_types.FederatedType(model_weights_type, tff.SERVER),
+      tff.FederatedType(model_weights_type, tff.SERVER),
   )
   def stateless_broadcast(state, value):
     empty_metrics = tff.federated_value((), tff.SERVER)
@@ -648,7 +647,7 @@ def build_model_delta_optimizer_process(
                   factory.WeightedAggregationFactory):
       aggregation_process = model_update_aggregation_factory.create(
           model_weights_type.trainable,
-          computation_types.TensorType(tf.float32))
+          tff.TensorType(tf.float32))
     else:
       aggregation_process = model_update_aggregation_factory.create(
           model_weights_type.trainable)

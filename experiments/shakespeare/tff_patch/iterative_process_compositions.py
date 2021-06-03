@@ -16,7 +16,6 @@
 from tensorflow_federated.python.common_libs import py_typecheck
 from tensorflow_federated.python.common_libs import structure
 from tensorflow_federated.python.core.api import computation_base
-from tensorflow_federated.python.core.api import computation_types
 from tensorflow_federated.python.core.api import computations
 # from tensorflow_federated.python.core.api import intrinsics
 # from tensorflow_federated.python.core.impl.types import placement_literals
@@ -103,7 +102,7 @@ def compose_dataset_computation_with_computation(
 
   if is_desired_federated_sequence(comp_body_param_type):
     # Single argument that matches, we compose in a straightforward manner.
-    new_param_type = computation_types.FederatedType(
+    new_param_type = tff.FederatedType(
         dataset_computation.type_signature.parameter,
         tff.CLIENTS)
 
@@ -119,7 +118,7 @@ def compose_dataset_computation_with_computation(
     # result.
     dataset_index = None
     new_param_elements = []
-    federated_param_type = computation_types.FederatedType(
+    federated_param_type = tff.FederatedType(
         dataset_computation.type_signature.parameter,
         tff.CLIENTS)
 
@@ -141,7 +140,7 @@ def compose_dataset_computation_with_computation(
           'argument signature matching `dataset_computation` result signature.'
           '\nArgument signature: {}\nResult signature: {}'.format(
               comp_body_param_type, dataset_return_type))
-    new_param_type = computation_types.StructType(new_param_elements)
+    new_param_type = tff.StructType(new_param_elements)
 
     @computations.federated_computation(new_param_type)
     def new_computation(param):
