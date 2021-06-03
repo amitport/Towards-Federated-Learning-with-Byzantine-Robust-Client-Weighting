@@ -1,6 +1,6 @@
-# Towards-Federated-Learning-With-Byzantine-Robust-Client-Weighting
+# Towards Federated Learning with Byzantine-Robust Client Weighting
 
-This repository is the official implementation of the paper 'Towards Federated Learning With Byzantine-RobustClient Weighting'.
+This repository is the official implementation of the paper 'Towards Federated Learning with Byzantine-Robust Client Weighting'.
 
 ## Folder structure
 
