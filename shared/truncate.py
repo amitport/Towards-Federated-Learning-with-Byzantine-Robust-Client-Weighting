@@ -1,5 +1,6 @@
 from itertools import islice
 from math import ceil, isclose, floor
+import numpy as np
 
 
 def find_alpha(U, N, alpha_star=0.5, sort_N=False):
