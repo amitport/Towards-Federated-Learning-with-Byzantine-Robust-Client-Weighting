@@ -78,8 +78,10 @@ def run_experiment(experiment_name, seed, model_factory, server_config,
     for i, data in enumerate(zip(partitioned_x_train, partitioned_y_train))
   ]
   if threat_model is not None:
-    attackers = np.random.choice(clients, int(
-      len(clients) * threat_model.real_alpha) if threat_model.real_alpha is not None else threat_model.f, replace=False)
+    attackers = np.random.choice(
+        clients,
+        int(len(clients) * threat_model.real_alpha) if threat_model.real_alpha is not None else int(threat_model.f),
+        replace=False)
     for client in attackers:
       client.as_attacker(threat_model)
 
@@ -108,8 +110,8 @@ ignore_weights_preprocess.prefix = ''
 
 
 def truncate_preprocess(num_of_samples_per_client, alpha):
-  U = find_U(num_of_samples_per_client, alpha=alpha)
-  return [min(U, num_of_samples) for num_of_samples in num_of_samples_per_client]
+  U = find_U(np.array(num_of_samples_per_client), alpha=alpha)
+  return [min(U, num_of_samples) for num_of_samples in num_of_samples_per_client] if U else num_of_samples_per_client
 
 
 def truncate_preprocess_with_alpha(alpha):
