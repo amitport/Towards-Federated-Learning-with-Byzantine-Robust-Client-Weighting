@@ -18,24 +18,54 @@ def find_alpha(U, N, alpha_star=0.5, sort_N=False):
             # len(N) * alpha
 
 
+def trunc(vec, threshold):
+  return [min(val, threshold) for val in vec]
+
+
+def trunc_helpers(weights, byzantine_proportion):
+  weights = list(weights)
+  n_clients = len(weights)
+  ind_thresh = int(n_clients * byzantine_proportion + 1)
+  return n_clients, ind_thresh
+
+
+def maximal_weight_proportion(weights, byzantine_proportion):
+  n_clients, ind_thresh = trunc_helpers(weights, byzantine_proportion)
+  return sum(weights[:ind_thresh]) / sum(weights)
+
+
+def is_valid_solution(N, alpha,
+                      alpha_star):
+  mwp = maximal_weight_proportion(N, alpha)
+  return mwp <= alpha_star
+
+
+EPSILON = 1e-3
+
+
 def find_U(N, alpha_star=0.5, alpha=0.3):
-    N = sorted(N.astype(np.int), reverse=True)
-    N = list(N)
-
-    k = int(len(N) * alpha + 1)
-
-    if alpha_star < k / len(N):
-        # k clients are never going to have less weight than their proportion
-        return min(N)
-
-    for U in range(N[0], N[-1] - 1, -1):
-        truncated = [min(U, n_k) for n_k in N]
-
-        mwp = sum(truncated[:k]) / sum(truncated)
-
-        if mwp <= alpha_star:
-            return U
-    return min(N)
+    n_clients, ind_thresh = trunc_helpers(N, alpha)
+    alpha_star = alpha_star - EPSILON  # helps deal with numerical errors
+    for u, n_u in enumerate(N):
+        truncated = trunc(N, n_u)
+        if not is_valid_solution(truncated, alpha,
+                                 alpha_star):
+            continue
+        mwp = maximal_weight_proportion(truncated, alpha)
+        if isclose(mwp, alpha_star):
+            return n_u
+        c = sum(N[u:])
+        d = u
+        if u < ind_thresh:
+            a = sum(N[u:ind_thresh])
+            b = u
+        else:
+            a = 0
+            b = ind_thresh
+        numerator = a - c * alpha_star
+        denominator = d * alpha_star - b
+        return numerator / denominator
+    return N[-1]
 
 
 def find_U_alpha_pairs(N, alpha_star=0.5):
