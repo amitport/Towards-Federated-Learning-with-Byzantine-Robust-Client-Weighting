@@ -30,7 +30,7 @@ from shared.aggregators import trimmed_mean, median, mean
 from shared.truncate import find_U
 from optimization.shared import training_specs
 from optimization.shared import optimizer_utils
-from experiments.shakespeare import federated_shakespeare
+from experiments.shakespeare import federated_shakespeare, federated_stackoverflow
 import experiments.shakespeare.tff_patch as tff_patch
 from experiments.shakespeare.numpy_aggr import NumpyAggrFactory
 from utils import training_loop
@@ -38,7 +38,7 @@ from utils import utils_impl
 
 
 _SUPPORTED_TASKS = [
-  'shakespeare',
+  'shakespeare', 'stackoverflow',
 ]
 
 with utils_impl.record_hparam_flags() as optimizer_flags:
@@ -92,10 +92,42 @@ with utils_impl.record_hparam_flags() as shakespeare_flags:
     'shakespeare_sequence_length', 80,
     'Length of character sequences to use for the RNN model.')
 
+
+with utils_impl.record_hparam_flags() as stackoverflow_flags:
+  # Stack Overflow flags
+  flags.DEFINE_integer(
+    'stackoverflow_vocab_size', 10000,
+    'Integer dictating the number of most frequent words to use in the vocabulary.')
+  flags.DEFINE_integer(
+    'stackoverflow_num_oov_buckets', 1,
+    'The number of out-of-vocabulary buckets to use.')
+  flags.DEFINE_integer(
+    'stackoverflow_sequence_length', 20,
+    'The maximum number of words to take for each sequence.')
+  flags.DEFINE_integer(
+    'stackoverflow_max_elements_per_user', 1000,
+    "The maximum number of elements processed for each client's dataset.")
+  flags.DEFINE_integer(
+    'stackoverflow_num_validation_examples', 10000,
+    'The number of test examples to use for validation.')
+  flags.DEFINE_integer(
+    'stackoverflow_embedding_size', 96,
+    'The dimension of the word embedding layer.')
+  flags.DEFINE_integer(
+    'stackoverflow_latent_size', 670,
+    'The dimension of the latent units in the recurrent layers.')
+  flags.DEFINE_integer(
+    'stackoverflow_num_layers', 1,
+    'The number of stacked recurrent layers to use.')
+  flags.DEFINE_bool(
+    'stackoverflow_shared_embedding', False,
+    'Boolean indicating whether to tie input and output embeddings.')
+
 FLAGS = flags.FLAGS
 
 TASK_FLAGS = collections.OrderedDict(
   shakespeare=shakespeare_flags,
+  stackoverflow=stackoverflow_flags,
 )
 
 
@@ -152,7 +184,7 @@ def main(argv):
     Returns:
       A `tff.templates.IterativeProcess`.
     """
-    if FLAGS.task == 'shakespeare' or FLAGS.task == 'stackoverflow_nwp':
+    if FLAGS.task == 'shakespeare' or FLAGS.task == 'stackoverflow':
 
       def client_weight_fn(local_outputs):
         return tf.cast(tf.squeeze(local_outputs['num_tokens']), tf.float32)
@@ -205,6 +237,16 @@ def main(argv):
   if FLAGS.task == 'shakespeare':
     runner_spec = federated_shakespeare.configure_training(
       task_spec, sequence_length=FLAGS.shakespeare_sequence_length, attack=FLAGS.attack, num_byzantine=FLAGS.num_byzantine)
+  elif FLAGS.task == 'stackoverflow':
+    runner_spec = federated_stackoverflow.configure_training(
+      task_spec,
+      vocab_size=FLAGS.stackoverflow_vocab_size, num_oov_buckets=FLAGS.stackoverflow_num_oov_buckets,
+      sequence_length=FLAGS.stackoverflow_sequence_length,
+      max_elements_per_user=FLAGS.stackoverflow_max_elements_per_user,
+      num_validation_examples=FLAGS.stackoverflow_num_validation_examples,
+      embedding_size=FLAGS.stackoverflow_embedding_size, latent_size=FLAGS.stackoverflow_latent_size,
+      num_layers=FLAGS.stackoverflow_num_layers, shared_embedding=FLAGS.stackoverflow_shared_embedding,
+      attack=FLAGS.attack, num_byzantine=FLAGS.num_byzantine)
   else:
     raise ValueError(
       '--task flag {} is not supported, must be one of {}.'.format(
