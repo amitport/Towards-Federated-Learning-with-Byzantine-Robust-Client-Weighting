@@ -20,12 +20,13 @@ def find_alpha(U, N, alpha_star=0.5, sort_N=False):
 
 def find_U(N, alpha_star=0.5, alpha=0.3):
     N = sorted(N.astype(np.int), reverse=True)
+    N = list(N)
 
     k = int(len(N) * alpha + 1)
 
     if alpha_star < k / len(N):
         # k clients are never going to have less weight than their proportion
-        return None
+        return min(N)
 
     for U in range(N[0], N[-1], -1):
         truncated = [min(U, n_k) for n_k in N]
@@ -34,6 +35,7 @@ def find_U(N, alpha_star=0.5, alpha=0.3):
 
         if mwp <= alpha_star:
             return U
+    return min(N)
 
 
 def find_U_alpha_pairs(N, alpha_star=0.5):
