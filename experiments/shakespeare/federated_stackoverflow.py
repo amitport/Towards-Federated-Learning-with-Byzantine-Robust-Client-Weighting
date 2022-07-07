@@ -18,10 +18,12 @@ import functools
 import tensorflow as tf
 import tensorflow_federated as tff
 
+from experiments.shakespeare import tff_patch
 from optimization.shared import keras_metrics
 from optimization.shared import training_specs
 from utils.datasets import stackoverflow_word_prediction
 from utils.models import stackoverflow_models
+import numpy as np
 
 
 def configure_training(
@@ -34,7 +36,9 @@ def configure_training(
     embedding_size: int = 96,
     latent_size: int = 670,
     num_layers: int = 1,
-    shared_embedding: bool = False) -> training_specs.RunnerSpec:
+    shared_embedding: bool = False,
+    attack: str = 'none',
+    num_byzantine: str = '10_percent') -> training_specs.RunnerSpec:
   """Configures training for Stack Overflow next-word prediction.
 
   This method will load and pre-process datasets and construct a model used for
@@ -60,6 +64,8 @@ def configure_training(
     A `RunnerSpec` containing attributes used for running the newly created
     federated task.
   """
+  ['10_percent', 'single'].index(num_byzantine)
+  ['none', 'delta_to_zero'].index(attack)
 
   model_builder = functools.partial(
       stackoverflow_models.create_recurrent_model,
@@ -124,21 +130,40 @@ def configure_training(
 
   iterative_process = task_spec.iterative_process_builder(tff_model_fn)
 
-  @tff.tf_computation(tf.string)
-  def train_dataset_computation(client_id):
-    client_train_data = train_clientdata.dataset_computation(client_id)
-    return train_dataset_preprocess_comp(client_train_data)
+  @tff.tf_computation((tf.string, tf.bool))
+  def train_dataset_computation(client_id_with_byzflag):
+    client_train_data = train_clientdata.dataset_computation(client_id_with_byzflag[0])
+    return train_dataset_preprocess_comp(client_train_data), client_id_with_byzflag[1]
 
-  training_process = tff.simulation.compose_dataset_computation_with_iterative_process(
+  training_process = tff_patch.compose_dataset_computation_with_iterative_process(
       train_dataset_computation, iterative_process)
   client_ids_fn = tff.simulation.build_uniform_sampling_fn(
       train_clientdata.client_ids,
       size=task_spec.clients_per_round,
       replace=False,
       random_seed=task_spec.client_datasets_random_seed)
-  # We convert the output to a list (instead of an np.ndarray) so that it can
-  # be used as input to the iterative process.
-  client_sampling_fn = lambda x: list(client_ids_fn(x))
+
+  if attack != 'none' and num_byzantine == 'single':
+    the_single_byz_id = train_clientdata.client_ids[tf.random.uniform([], maxval=len(train_clientdata.client_ids),
+                                                                      dtype=tf.int32)]
+
+  def client_sampling_fn_with_byzantine(round_num):
+    client_ids = list(client_ids_fn(round_num, task_spec.clients_per_round))
+    # return [[client_id, is_byzantine_map[client_id]] for idx, client_id in enumerate(client_ids)]
+    # TODO current this assumes 10 client sampling and 1 byzantine per sample
+    byz_mask = np.zeros(10, dtype=np.bool)
+    if attack != 'none':
+      if num_byzantine == '10_percent':
+        byzIdx = np.random.randint(10)
+        byz_mask[byzIdx] = True
+      elif num_byzantine == 'single':
+        for idx, client_id in enumerate(client_ids):
+          if client_id == the_single_byz_id:
+            byz_mask[idx] = True
+
+    return list(zip(client_ids, byz_mask))
+
+  client_sampling_fn = client_sampling_fn_with_byzantine
 
   training_process.get_model_weights = iterative_process.get_model_weights
 
