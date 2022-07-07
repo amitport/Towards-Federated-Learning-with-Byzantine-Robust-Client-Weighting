@@ -22,20 +22,19 @@ def trunc(vec, threshold):
   return [min(val, threshold) for val in vec]
 
 
-def trunc_helpers(weights, byzantine_proportion):
-  weights = list(weights)
-  n_clients = len(weights)
-  ind_thresh = int(n_clients * byzantine_proportion + 1)
-  return n_clients, ind_thresh
+def trunc_helpers(N, alpha):
+  N = list(N)
+  K = len(N)
+  t = int(K * alpha + 1)
+  return K, t
 
 
-def maximal_weight_proportion(weights, byzantine_proportion):
-  n_clients, ind_thresh = trunc_helpers(weights, byzantine_proportion)
-  return sum(weights[:ind_thresh]) / sum(weights)
+def maximal_weight_proportion(N, alpha):
+  K, t = trunc_helpers(N, alpha)
+  return sum(N[:t]) / sum(N)
 
 
-def is_valid_solution(N, alpha,
-                      alpha_star):
+def is_valid_solution(N, alpha, alpha_star):
   mwp = maximal_weight_proportion(N, alpha)
   return mwp <= alpha_star
 
@@ -44,24 +43,25 @@ EPSILON = 1e-3
 
 
 def find_U(N, alpha_star=0.5, alpha=0.3):
-    n_clients, ind_thresh = trunc_helpers(N, alpha)
+    N = sorted(N, reverse=True)
+    N = np.array(N)
+    K, t = trunc_helpers(N, alpha)
     alpha_star = alpha_star - EPSILON  # helps deal with numerical errors
     for u, n_u in enumerate(N):
         truncated = trunc(N, n_u)
-        if not is_valid_solution(truncated, alpha,
-                                 alpha_star):
+        if not is_valid_solution(truncated, alpha, alpha_star):
             continue
         mwp = maximal_weight_proportion(truncated, alpha)
         if isclose(mwp, alpha_star):
             return n_u
         c = sum(N[u:])
         d = u
-        if u < ind_thresh:
-            a = sum(N[u:ind_thresh])
+        if u < t:
+            a = sum(N[u:t])
             b = u
         else:
             a = 0
-            b = ind_thresh
+            b = t
         numerator = a - c * alpha_star
         denominator = d * alpha_star - b
         return numerator / denominator
