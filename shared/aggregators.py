@@ -17,6 +17,8 @@ import wquantiles as w
 # z = avg_aggr(tf.ragged.constant(np.vstack((a, b))))
 
 def mean(points, weights):
+    if sum(weights) == 0:
+        return np.average(points, axis=0)
     return np.average(points, axis=0, weights=weights)#.astype(points.dtype)
 
 
