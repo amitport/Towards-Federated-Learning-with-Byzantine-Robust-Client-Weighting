@@ -139,7 +139,7 @@ def configure_training(
       train_dataset_computation, iterative_process)
   client_ids_fn = tff.simulation.build_uniform_sampling_fn(
       train_clientdata.client_ids,
-      size=task_spec.clients_per_round,
+      # size=task_spec.clients_per_round,
       replace=False,
       random_seed=task_spec.client_datasets_random_seed)
 
