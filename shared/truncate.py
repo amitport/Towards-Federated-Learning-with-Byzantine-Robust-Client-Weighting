@@ -28,7 +28,7 @@ def find_U(N, alpha_star=0.5, alpha=0.3):
         # k clients are never going to have less weight than their proportion
         return min(N)
 
-    for U in range(N[0], N[-1], -1):
+    for U in range(N[0], N[-1] - 1, -1):
         truncated = [min(U, n_k) for n_k in N]
 
         mwp = sum(truncated[:k]) / sum(truncated)
