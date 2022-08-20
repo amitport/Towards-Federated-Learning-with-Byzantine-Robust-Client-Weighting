@@ -20,8 +20,8 @@ from experiments.shakespeare.robust_aggregation.robust_federated_aggregation imp
 
 
 class TruncatedRobustWeiszfeldFactory(RobustWeiszfeldFactory):
-  def __init__(self, num_communication_passes=5, tolerance=1e-6, U=None):
-    """Initializes RobustWeiszfeldFactory.
+  def __init__(self, U, num_communication_passes=5, tolerance=1e-6):
+    """Initializes TruncatedRobustWeiszfeldFactory.
 
     Args:
       num_communication_passes: Number of communication rounds in the smoothed
