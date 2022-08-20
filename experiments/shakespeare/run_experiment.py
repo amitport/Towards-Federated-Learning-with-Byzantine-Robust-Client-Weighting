@@ -33,6 +33,8 @@ from optimization.shared import optimizer_utils
 from experiments.shakespeare import federated_shakespeare, federated_stackoverflow
 import experiments.shakespeare.tff_patch as tff_patch
 from experiments.shakespeare.numpy_aggr import NumpyAggrFactory
+from experiments.shakespeare.robust_aggregation import RobustWeiszfeldFactory, TruncatedRobustWeiszfeldFactory
+from experiments.shakespeare.client_weight import get_client_weights
 from utils import training_loop
 from utils import utils_impl
 
@@ -75,7 +77,7 @@ with utils_impl.record_hparam_flags() as shared_flags:
                     'What to do with the clients\' relative weights.')
   # flags.DEFINE_float('weight_truncate_U', None, 'truncate threshold when weight_preproc is \'truncate\'')
 
-  flags.DEFINE_enum('aggregation', 'mean', ['mean', 'trimmed_mean', 'median'], 'select aggregation type to use')
+  flags.DEFINE_enum('aggregation', 'mean', ['mean', 'trimmed_mean', 'median', 'rfa'], 'select aggregation type to use')
 
   flags.DEFINE_enum('attack', 'none', ['none', 'delta_to_zero'], 'select attack type')
   flags.DEFINE_enum('num_byzantine', '10_percent', ['10_percent', 'single'], 'select the number of byzantine clients')
@@ -215,6 +217,16 @@ def main(argv):
         aggregator = None  # defaults to reduce mean
       else:
         aggregator = NumpyAggrFactory(inner_aggregator)
+
+    if FLAGS.aggregation == 'rfa':
+      if FLAGS.weight_preproc == 'truncate':
+        weights = get_client_weights(FLAGS.task, 10)
+        weights = list(weights)
+        weights = np.array(weights)
+        U = find_U(weights, alpha_star=0.5, alpha=0.1)
+        aggregator = TruncatedRobustWeiszfeldFactory(U)
+      else:
+        aggregator = RobustWeiszfeldFactory()
 
     return tff_patch.build_federated_averaging_process(
       model_fn=model_fn,
