@@ -220,7 +220,7 @@ def main(argv):
 
     if FLAGS.aggregation == 'rfa':
       if FLAGS.weight_preproc == 'truncate':
-        weights = get_client_weights(FLAGS.task, 10)
+        weights = get_client_weights(FLAGS.task)
         weights = list(weights)
         weights = np.array(weights)
         U = find_U(weights, alpha_star=0.5, alpha=0.1)
