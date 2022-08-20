@@ -4,7 +4,7 @@ import tensorflow_federated as tff
 DATASET_MODULES = {'cifar100': tff.simulation.datasets.cifar100,
                    'emnist': tff.simulation.datasets.emnist,
                    'gldv2': tff.simulation.datasets.gldv2,
-                   'experiments': tff.simulation.datasets.shakespeare,
+                   'shakespeare': tff.simulation.datasets.shakespeare,
                    'stackoverflow': tff.simulation.datasets.stackoverflow}
 
 
